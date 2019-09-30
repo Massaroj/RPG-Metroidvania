@@ -12,6 +12,8 @@ public class bulletScript : MonoBehaviour
     public LayerMask whatIsCrit;
     public int damage;
 
+    bool facingRight;
+
     // Start is called before the first frame update
     void Start()
     {

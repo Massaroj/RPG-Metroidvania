@@ -19,6 +19,7 @@ public class movementJump : MonoBehaviour
     private bool isJumping;
 
     public GameObject bullet;
+    public GameObject bulletLeft;
     private bool facingRight;
     Vector2 bulletPos;
     public float fireRate = .5f;
@@ -49,6 +50,12 @@ public class movementJump : MonoBehaviour
     {
         moveInput = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
+
+        if (rb.velocity.x < 0)
+            facingRight = false;
+
+        else if(rb.velocity.x > 0)
+            facingRight = true;
     }
 
     // Update is called once per frame
@@ -58,6 +65,11 @@ public class movementJump : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if(facingRight)
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        else
+            transform.localRotation = Quaternion.Euler(0, 180, 0);
 
         //Makes a check to see if the player is grounded or not for jumping
         isGrounded = Physics2D.OverlapCircle(feetPos.position, checkRadius, whatIsGround);
@@ -102,6 +114,11 @@ public class movementJump : MonoBehaviour
         {
             bulletPos += new Vector2(+2.5f, .4f);
             Instantiate(bullet, bulletPos, Quaternion.identity);
+        }
+        else
+        {
+            bulletPos += new Vector2(-2.5f, .4f);
+            Instantiate(bulletLeft, bulletPos, Quaternion.identity);
         }
 
         mana -= 1;
