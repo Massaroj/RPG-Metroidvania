@@ -6,6 +6,7 @@ public class attackSword : MonoBehaviour
 {
     private float timeBtwAttack;
     public float startTimeBtwAttack;
+    private float manaRegen;
 
     public Transform attackPos;
     public LayerMask whatIsEnemy;
@@ -22,9 +23,13 @@ public class attackSword : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.C))
             {
                 Collider2D[] enemiesToDamage = Physics2D.OverlapCircleAll(attackPos.position, attackRange, whatIsEnemy);
+
+                //Damages enemies hit by attack, and then regens a portion of the mana
                 for(int i = 0; i < enemiesToDamage.Length; i++)
                 {
                     enemiesToDamage[i].GetComponent<enemy>().takeDamage(damage);
+                    manaRegen = gameObject.GetComponentInParent<movementJump>().mana = gameObject.GetComponentInParent<movementJump>().mana += damage;
+                    gameObject.GetComponentInParent<movementJump>().UI.GetComponent<UIManager>().updateMana((int)manaRegen);
                 }
 
                 timeBtwAttack = startTimeBtwAttack;

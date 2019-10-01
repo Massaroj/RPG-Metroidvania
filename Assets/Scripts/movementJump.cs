@@ -18,9 +18,10 @@ public class movementJump : MonoBehaviour
     public float jumpTime;
     private bool isJumping;
 
-    public GameObject bullet;
-    public GameObject bulletLeft;
-    private bool facingRight;
+    public BulletType bulletType;
+    public GameObject fireBullet;
+    public GameObject iceBullet;
+    public bool facingRight;
     Vector2 bulletPos;
     public float fireRate = .5f;
     float nextFire = 0;
@@ -33,6 +34,8 @@ public class movementJump : MonoBehaviour
 
     public int mana = 5;
     public float manaChargeTime = 3000f;
+    public bool fireEnabled;
+    public bool iceEnabled;
 
     public Canvas UI;
 
@@ -43,9 +46,14 @@ public class movementJump : MonoBehaviour
         rb.freezeRotation = true;
         facingRight = true;
         playerDamaged = GetComponent<BoxCollider2D>();
+        fireEnabled = false;
+        iceEnabled = false;
     }
 
     //Will need to be more fine tuned
+    /*
+     *Player Movement 
+    */
     private void FixedUpdate()
     {
         moveInput = Input.GetAxisRaw("Horizontal");
@@ -66,6 +74,7 @@ public class movementJump : MonoBehaviour
             Destroy(gameObject);
         }
 
+        //Flip player based on direction
         if(facingRight)
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         else
@@ -97,10 +106,18 @@ public class movementJump : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space))
             isJumping = false;
 
-        //Shoot projectile
+        //Shoot projectile **(Add a boolean for when shooting is enabled)**
         if(Input.GetKey(KeyCode.X) && Time.time > nextFire && mana > 0)
         {
             nextFire = Time.time + fireRate;
+
+            if (fireEnabled)
+                bulletType = BulletType.fireBullet;
+            else if (iceEnabled)
+                bulletType = BulletType.iceBullet;
+            else
+                bulletType = BulletType.none;
+
             Fire();
         }
     }
@@ -109,25 +126,27 @@ public class movementJump : MonoBehaviour
    void Fire()
     {
         bulletPos = transform.position;
-
         if(facingRight)
-        {
             bulletPos += new Vector2(+2.5f, .4f);
-            Instantiate(bullet, bulletPos, Quaternion.identity);
-        }
         else
-        {
             bulletPos += new Vector2(-2.5f, .4f);
-            Instantiate(bulletLeft, bulletPos, Quaternion.identity);
+
+        switch(bulletType)
+        {
+            case BulletType.fireBullet:
+                Instantiate(fireBullet, bulletPos, Quaternion.identity);
+                break;
+
+            case BulletType.iceBullet:
+                Instantiate(iceBullet, bulletPos, Quaternion.identity);
+                break;
+
+            case BulletType.none:
+                return;
         }
 
         mana -= 1;
         UI.GetComponent<UIManager>().updateMana(mana);
-
-        if (mana < 5)
-        {
-            StartCoroutine(Recharge());
-        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -149,13 +168,11 @@ public class movementJump : MonoBehaviour
         yield return new WaitForSeconds(invincibilityTime);
         invincible = false;
     }
+}
 
-    IEnumerator Recharge()
-    {
-        yield return new WaitForSeconds(manaChargeTime);
-        mana += 1;
-        UI.GetComponent<UIManager>().updateMana(mana);
-        Debug.Log(mana);
-        yield return new WaitForSeconds(.5f);
-    }
+public enum BulletType
+{
+    fireBullet,
+    iceBullet,
+    none
 }

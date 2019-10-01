@@ -18,12 +18,16 @@ public class bulletScript : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        facingRight = GameObject.Find("player").GetComponent<movementJump>().facingRight;
     }
 
     // Update is called once per frame
     void Update()
     {
-        rb.velocity = new Vector2(velX, velY);
+        if(facingRight)
+            rb.velocity = new Vector2(velX, velY);
+        else
+            rb.velocity = new Vector2(-velX, velY);
 
         //For Continous projectiles
         Collider2D[] enemiesToDamage = Physics2D.OverlapCircleAll(gameObject.GetComponent<Transform>().position, gameObject.GetComponent<CircleCollider2D>().radius, whatIsEnemy);
